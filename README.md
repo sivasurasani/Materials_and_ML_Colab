@@ -392,3 +392,99 @@ This function is typically used in:
 * **Work hardening curve fitting**
 
 ---
+
+
+# Loop through each folder in the data directory CELL. This is the implementation for storing all the json information.
+
+---
+
+# 🗂️ Folder-Based Batch Processor for Material Science Data
+
+This script automates the processing of folders containing experimental data and research papers. It reads each folder, extracts relevant files, analyzes mechanical behavior and textual content, and compiles results into a structured JSON format.
+
+---
+
+## 🎯 Purpose
+
+To automate the extraction of:
+
+* **Stress-strain curve modeling parameters** (`b₀`, `d₁`, `d₂`, `eᵢ`, `eₑ`)
+* **Textual keywords** and **chemical compositions** from PDFs
+* **Hollomon model constants** (`n`, `k`)
+* **Source metadata** (via `.txt` file)
+
+And store them in a consolidated JSON file: `data.json`
+
+---
+
+## 📁 Folder Structure (Per Sample)
+
+Each folder in the `data_directory` must contain:
+
+| File         | Required | Purpose                                                        |
+| ------------ | -------- | -------------------------------------------------------------- |
+| `*_cal.xlsx` | ✅        | Excel sheet with three columns: strain, stress, hardening rate |
+| `.pdf`       | ✅        | Research paper (for keyword/composition extraction)            |
+| `.txt`       | ❌        | Optional: contains the source link or DOI                      |
+
+---
+
+## 🧠 What This Script Does
+
+1. **Iterates over folders** inside a specified directory.
+2. **Identifies and verifies** required files.
+3. **Reads Excel sheet** to determine column names dynamically:
+
+   * First column = strain
+   * Second = stress
+   * Third = hardening rate
+4. **Calls** `analyze_pdf_data()` to:
+
+   * Compute modeling parameters from stress-strain curves
+   * Extract keywords using NLP
+   * Extract chemical compositions using regex/OCR
+   * Calculate `n` and `k` values (Hollomon constants)
+5. **Builds a metadata dictionary** and appends it to `data.json` via `update_json_data()`.
+
+---
+
+## 📤 Output (JSON Format)
+
+Each folder results in an entry like:
+
+```json
+{
+  "title": "Folder123",
+  "b0": 1145,
+  "d1": 7000,
+  "d2": 0.35,
+  "ei": 0.18,
+  "ee": 0.2,
+  "lemma": ["strain", "rolling", "powder"],
+  "composition": {"Fe": 1, "Ni": 1, "Al": 0.3},
+  "link": "https://doi.org/example-link",
+  "n": 0.29,
+  "k": 950.5
+}
+```
+
+---
+
+## 📦 Dependencies
+
+Make sure your environment has the following:
+
+* Python libraries: `pandas`, `numpy`, `matplotlib`, `nltk`, `PyPDF2`, `pytesseract`, `pdf2image`
+* System tools: `poppler-utils`, `tesseract-ocr`
+
+---
+
+## ✅ Use Case
+
+This script is ideal for:
+
+* Batch-processing a dataset of mechanical testing results + papers
+* Creating a knowledge base of material properties
+* Feeding AI/ML models for materials property prediction
+
+---
