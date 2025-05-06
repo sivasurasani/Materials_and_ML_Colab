@@ -93,4 +93,103 @@ The goal is to:
 * The notebook uses `nltk.download()` commands to ensure required NLP datasets are available.
 * Keywords are defined in a Python `set` and can be extended for more precise filtering.
 
+# Main file
 
+Function `calculate_b0_range`:
+
+---
+
+# 📐 Function: `calculate_b0_range`
+
+This function estimates a suitable range for the material parameter **b₀** used in stress-strain modeling. It analyzes the hardening rate data from a mechanical test (like a tensile test), fits a polynomial curve, evaluates its derivative, and extracts candidate **b₀** values based on turning points in the data.
+
+---
+
+## ✅ Purpose
+
+To:
+
+* Fit a polynomial to experimental hardening rate data.
+* Calculate the derivative and its roots (i.e., critical points).
+* Select the two closest root values and compute a bounded range around their corresponding **y** values (i.e., estimated b₀ range).
+
+---
+
+## 📥 Parameters
+
+| Parameter   | Type  | Description                                                             |
+| ----------- | ----- | ----------------------------------------------------------------------- |
+| `file_path` | `str` | Path to an Excel file containing strain and hardening rate columns      |
+| `x_axis`    | `str` | Column name for the x-axis (typically true strain)                      |
+| `y2_axis`   | `str` | Column name for the y-axis (typically hardening rate)                   |
+| `k_value`   | `int` | Degree of the polynomial used for curve fitting and derivative analysis |
+
+---
+
+## 📤 Returns
+
+* `from_b0` (`int`) – lower bound of the estimated b₀ range
+* `to_b0` (`int`) – upper bound of the estimated b₀ range
+
+---
+
+## ⚙️ How It Works
+
+1. **Load and Clean Data**
+   Reads the Excel file and drops trailing rows that might be metadata or noise.
+
+2. **Smooth and Interpolate**
+
+   * Uses cubic spline interpolation for smoothing.
+   * Fits a `k_value`-degree polynomial to the data.
+
+3. **Detect Flat Regions (Optional Adjustment)**
+   Identifies sections where the hardening rate is almost constant and adjusts them for better fitting (if the curve is monotonically decreasing).
+
+4. **Print Curve Equations**
+   Dynamically constructs and prints:
+
+   * The polynomial equation.
+   * Its derivative.
+
+5. **Find Derivative Roots**
+
+   * Calculates where the slope of the curve becomes zero or changes direction.
+   * These roots are critical points (turning points) in the hardening curve.
+
+6. **Evaluate Candidate b₀**
+
+   * Evaluates the original polynomial at each root.
+   * Selects the two closest `y` values.
+   * Calculates a bounding range: `from_b0` and `to_b0`.
+
+7. **Visualize Curve Fitting**
+
+   * Plots the original, interpolated, and polynomial curves.
+   * Helps visualize turning points and fitting quality.
+
+---
+
+## 📈 Example Output
+
+```
+Cubic Polynomial Coefficients: [...]
+Polynomial Equation: a x^3 + b x^2 + c x + d
+Derivative Equation: 3a x^2 + 2b x + c
+Roots (Zeros): [x1, x2, ...]
+Original Y Values: [y1, y2, ...]
+Minimum b0: 1130.5
+Maximum b0: 1145.2
+From_b0: 1000
+To_b0: 1300
+```
+
+---
+
+## 📊 Dependencies
+
+* `pandas`, `numpy` – data manipulation
+* `matplotlib` – plotting
+* `scipy.interpolate` – spline fitting
+
+---
