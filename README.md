@@ -291,3 +291,105 @@ This function is typically used in the context of:
 * `scipy.interpolate.CubicSpline` – for curve fitting
 
 ---
+
+
+Function `find_best_parameters` that explains its purpose, usage, and internal logic:
+
+---
+
+# 🔍 Function: `find_best_parameters`
+
+This function performs a **grid search optimization** to find the best-fit parameters (`B₀`, `D₁`, `D₂`, `Ei`) for a custom mathematical model used in **material deformation analysis**, particularly for modeling hardening rate curves in stress-strain data.
+
+---
+
+## 🎯 Purpose
+
+To:
+
+* Evaluate combinations of model parameters (`b0`, `d1`, `d2`, `ei`) over defined ranges.
+* Minimize the **Euclidean distance** (error) between the predicted and actual hardening rate values.
+* Return the parameter set with the **lowest fitting error**.
+
+---
+
+## 📥 Parameters
+
+| Parameter   | Type    | Description                                                          |
+| ----------- | ------- | -------------------------------------------------------------------- |
+| `file_path` | `str`   | Path to Excel file with experimental data                            |
+| `x_axis`    | `str`   | Name of the column representing true strain (εₚ)                     |
+| `y2_axis`   | `str`   | Name of the column representing target output (e.g., hardening rate) |
+| `from_b0`   | `int`   | Lower bound for parameter B₀ (initial offset stress)                 |
+| `to_b0`     | `int`   | Upper bound for B₀                                                   |
+| `min_d1`    | `int`   | Minimum slope value (D₁)                                             |
+| `max_d1`    | `int`   | Maximum slope value (D₁)                                             |
+| `ee`        | `float` | Global end strain (used in the model equation)                       |
+
+---
+
+## 📤 Returns
+
+* `best_b0` – Best fit value for B₀
+* `best_d1` – Best fit value for D₁
+* `best_d2` – Best fit value for D₂
+* `best_ei` – Best fit value for inflection strain Ei
+* `min_mse` – Minimum Euclidean distance (error) between prediction and actual data
+
+---
+
+## 🧮 Model Equation
+
+The function evaluates the following model for a given set of parameters:
+
+$$
+y = B₀ - D₁ \left( \left| \frac{εₚ - Eᵢ}{Eᵢ + Eₑ} \right| \cdot \text{arctanh}\left(\frac{εₚ - Eᵢ}{Eᵢ + Eₑ}\right) - D₂ \cdot \left( \frac{εₚ - Eᵢ}{Eᵢ + Eₑ} \right) \right)
+$$
+
+Where:
+
+* `εₚ` is the true strain,
+* `Eᵢ` is the inflection strain,
+* `Eₑ` is the end strain (constant `ee`),
+* `B₀`, `D₁`, `D₂` are the parameters to optimize.
+
+---
+
+## ⚙️ Optimization Strategy
+
+* Grid search using `itertools.product()` to test all combinations.
+* Evaluates Euclidean distance (L2 norm) between predicted and actual data.
+* Selects the combination with the lowest error.
+
+---
+
+## 📦 Parameter Search Ranges
+
+* `b0`: from `from_b0` to `to_b0` (step = 10)
+* `d1`: from `min_d1` to `max_d1` (step = 5)
+* `d2`: from `0.2` to `0.5` (step = 0.05)
+* `ei`: from `0.1` to `0.285` (step = 0.05)
+
+---
+
+## ✅ Example Output
+
+```
+Best Parameters:
+B0: 1150
+D1: 7200
+D2: 0.35
+Ei: 0.15
+```
+
+---
+
+## 📊 Use Case
+
+This function is typically used in:
+
+* **Material model calibration**
+* **Work hardening curve fitting**
+* Feeding results into predictive mechanical simulations
+
+---
