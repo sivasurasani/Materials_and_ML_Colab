@@ -193,3 +193,101 @@ To_b0: 1300
 * `scipy.interpolate` – spline fitting
 
 ---
+
+
+Function `calculate_min_max_slope`:
+
+---
+
+# 📈 Function: `calculate_min_max_slope`
+
+This function analyzes experimental hardening rate data (e.g., from tensile testing) and calculates the **minimum and maximum slope values** from a **cubic spline fit** of the data. These slope bounds are later used to optimize material modeling parameters like **D₁**, a critical slope parameter in stress-strain curve equations.
+
+---
+
+## ✅ Purpose
+
+To:
+
+* Smooth stress-strain (or strain-hardening rate) data using cubic splines.
+* Estimate valid slope (first derivative) ranges from positive-slope regions.
+* Return a narrow range of slope values (`min_d1`, `max_d1`) for downstream model fitting.
+
+---
+
+## 📥 Parameters
+
+| Parameter   | Type  | Description                                            |
+| ----------- | ----- | ------------------------------------------------------ |
+| `file_path` | `str` | Path to Excel file with strain and hardening rate data |
+| `x_axis`    | `str` | Name of the strain column                              |
+| `y2_axis`   | `str` | Name of the hardening rate column                      |
+
+---
+
+## 📤 Returns
+
+* `min_d1` (`int`): Minimum positive slope value from early-stage hardening
+* `max_d1` (`int`): Maximum positive slope value (capped at `min_d1 + 10000` for stability)
+
+---
+
+## 🧠 How It Works
+
+1. **Load and Clean Data**
+
+   * Reads specified columns from the Excel file.
+   * Removes any rows with missing or non-numeric values.
+
+2. **Detect and Adjust Flat Regions**
+
+   * Optionally modifies values that show unusually flat (constant) segments in the data.
+
+3. **Spline Fitting**
+
+   * Fits a **cubic spline** to the data.
+   * Calculates the **first derivative** (slope) at each data point.
+
+4. **Slope Analysis**
+
+   * Filters out negative slopes.
+   * Focuses on the first few positive slope values (up to 5).
+   * Computes the **difference between consecutive slopes** to find early behavior changes.
+
+5. **Annotated Plotting**
+
+   * Displays original and spline-fitted data.
+   * Annotates selected points on the curve with index labels.
+
+6. **Return Range**
+
+   * Returns minimum and maximum slope values from printed slope list.
+   * If the difference between max and min is too large (> 10,000), the max is clamped.
+
+---
+
+## 📊 Visual Output
+
+* Spline curve vs. raw data
+* Indexed slope points shown directly on the graph
+* Helps in manually validating slope segments
+
+---
+
+## 🔍 Use Case
+
+This function is typically used in the context of:
+
+* **Materials deformation modeling**
+* Estimating valid ranges for **D₁**, the initial slope parameter in constitutive equations
+* Feeding the output into another routine like `find_best_parameters(...)` for optimization
+
+---
+
+## 🛠 Dependencies
+
+* `pandas`, `numpy` – for data handling
+* `matplotlib` – for graph plotting
+* `scipy.interpolate.CubicSpline` – for curve fitting
+
+---
