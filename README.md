@@ -390,6 +390,5 @@ This function is typically used in:
 
 * **Material model calibration**
 * **Work hardening curve fitting**
-* Feeding results into predictive mechanical simulations
 
 ---
