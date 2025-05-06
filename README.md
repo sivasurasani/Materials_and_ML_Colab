@@ -488,3 +488,107 @@ This script is ideal for:
 * Feeding AI/ML models for materials property prediction
 
 ---
+
+
+Notebook `extracting_hardening_from_str_strain_values.ipynb`:
+
+---
+
+# 📈 Extracting Work Hardening Rate from Stress-Strain Data
+
+This notebook automates the extraction of **true stress**, **true strain**, and the **work hardening rate** from engineering stress-strain values across multiple folders. It fits a polynomial to the stress-strain curve and saves the processed data for further analysis.
+
+---
+
+## 🎯 Objective
+
+To:
+
+* Convert engineering stress-strain data to true stress-strain values.
+* Apply polynomial fitting to the true stress-strain curve.
+* Calculate the **work hardening rate** as:
+
+  $$
+  \text{Hardening Rate} = \frac{d(\sigma_{\text{true}})}{d(\varepsilon_{\text{true}})}
+  $$
+* Save the fitted data and hardening rate to a new Excel file.
+
+---
+
+## 🛠️ How It Works
+
+### 1. **Directory Traversal**
+
+* Iterates through each subfolder inside a defined main directory (e.g., Google Drive location).
+* Each folder must contain an Excel file named: `Eng Values.xlsx`.
+
+### 2. **Data Processing**
+
+* Converts:
+
+  * `t.stress = eng.stress × (1 + eng.strain)`
+  * `t.strain = ln(1 + eng.strain)`
+* Filters out non-positive values.
+
+### 3. **Curve Fitting**
+
+* Fits a 5th-degree polynomial to the true stress-strain curve.
+* Generates 100 evenly spaced strain values.
+* Evaluates polynomial to get smoothed stress values.
+
+### 4. **Work Hardening Calculation**
+
+* Computes the derivative of stress with respect to strain using `np.diff`.
+
+### 5. **Result Output**
+
+* Saves a new Excel file named `fitted_hard_rate_cal.xlsx` in the same folder.
+* Columns include:
+
+  * `t.strain`
+  * `t.stress`
+  * `hard.Rate` (only positive values retained)
+
+---
+
+## 📂 Folder Structure
+
+Each folder should contain:
+
+```
+/Folder_Name
+  ├── Eng Values.xlsx  ← Required input file
+  └── fitted_hard_rate_cal.xlsx  ← Output generated after processing
+```
+
+---
+
+## 🧪 Output Format
+
+| t.strain | t.stress | hard.Rate |
+| -------- | -------- | --------- |
+| 0.015    | 450.2    | 2100.4    |
+| 0.017    | 472.5    | 1803.1    |
+| ...      | ...      | ...       |
+
+---
+
+## 📦 Dependencies
+
+* `pandas`
+* `numpy`
+* `os`
+* `polyfit` (NumPy)
+* `ExcelWriter` (from `pandas`)
+* Must be run in an environment with access to Google Drive if using the `/content/drive` path (e.g., Google Colab).
+
+---
+
+## ✅ Use Case
+
+This script is ideal for:
+
+* Automating the preprocessing and visualization pipeline for mechanical behavior.
+* Feeding hardening rate data into ML models or constitutive equation fitting.
+
+---
