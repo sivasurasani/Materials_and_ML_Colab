@@ -2,12 +2,6 @@
 
 # Normalized_compositions.ipynb
 
-Here is a `README.md` based on your notebook **Normalized\_compositions.ipynb**:
-
----
-
-# Normalize Alloy Compositions
-
 This notebook processes a JSON file containing alloy compositions and normalizes each composition to atomic percentages.
 
 ## 📄 Overview
